@@ -1,0 +1,19 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<form method="POST" action="">
+    {% csrf_token %}
+    <p>Are you sure you want to delete {{ object }} ?<br><br>
+        <b>DETAILS</b>
+        <ul>
+            <li>Room description : {{ object.description }}</li>
+            <li>Last Updated: {{ object.updated }}</li>
+            <li>Date Created: {{ object.created }}</li>
+            <li>Hosted by : {{ object.host }}</li>
+            <li>Discussion topic: {{ object.topic }}</li>
+            </ul>
+        <a href="{{ request.META.HTTP.REFERER|default:'/' }}">Cancel</a>
+        <input type="submit" value="Confirm">
+    </form>
+
+    {% endblock %}
