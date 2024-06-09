@@ -12,7 +12,7 @@
             <li>Hosted by : {{ object.host }}</li>
             <li>Discussion topic: {{ object.topic }}</li>
             </ul>
-        <a href="{{ request.META.HTTP.REFERER|default:'/' }}">Cancel</a>
+        <a href="{{ request.META.HTTP_REFERER|default:'/' }}">Cancel</a>
         <input type="submit" value="Confirm">
     </form>
 
