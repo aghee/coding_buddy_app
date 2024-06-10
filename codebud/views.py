@@ -79,10 +79,14 @@ def home(request):
     
     rooms_found=room.count()
     topics=Topic.objects.all()[:8]
+    #query upwards
+    room_messages=Message.objects.filter(
+        Q(room__topic__name__icontains=q))
     context={
         "rooms":room,
         "topickey":topics,
-        "rooms_found":rooms_found
+        "rooms_found":rooms_found,
+        "room_messages":room_messages
     }
     return render(request,"codebud/home.html",context)
 
@@ -115,6 +119,20 @@ def oneroom(request,pk):
         "participants":participants,
     }
     return render(request,"codebud/room.html",context)
+
+def userProfile(request,pk):
+    user=User.objects.get(id=pk)
+    #get all children of a particular object -model name_set -->
+    rooms=user.room_set.all()
+    room_messages=user.message_set.all()
+    topickey=Topic.objects.all()
+    context={
+        "user":user,
+        "rooms":rooms,
+        "room_messages":room_messages,
+        "topickey":topickey
+    }
+    return render(request,"codebud/userprofile.html",context)
 
 @login_required(login_url="login")
 def createRoom(request):
