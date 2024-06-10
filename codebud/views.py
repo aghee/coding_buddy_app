@@ -1,6 +1,6 @@
 from django.shortcuts import render,redirect
-from .models import Room,Topic
-from .forms import RoomForm
+from .models import Room,Topic,Message
+from .forms import RoomForm,MessageForm
 from django.db.models import Q
 from django.contrib.auth.models import User
 from django.contrib import messages
@@ -95,8 +95,24 @@ def oneroom(request,pk):
     #     "roomey":room
     # }
     room=Room.objects.get(id=pk)
+    #set of messages related to specific room
+    room_messages=room.message_set.all().order_by("-updated")
+    if request.method =="POST":
+        message=Message.objects.create(
+            user=request.user,
+            room=room,
+            body=request.POST.get('body')
+
+        )
+        room.participants.add(request.user)
+        return redirect('oneroom',pk=room.id)
+        
+    participants=room.participants.all()
+
     context={
-        "roomey":room
+        "roomey":room,
+        "room_messages":room_messages,
+        "participants":participants,
     }
     return render(request,"codebud/room.html",context)
 
@@ -159,6 +175,7 @@ class TestPut():
 
 @login_required(login_url="login")
 def deleteRoom(request,pk):
+    page="delete-room"
     room_to_delete=Room.objects.get(id=pk)
     # print(room_to_delete)
     if request.user != room_to_delete.host:
@@ -171,3 +188,34 @@ def deleteRoom(request,pk):
         "object":room_to_delete
     }
     return render(request,"codebud/deleteroom.html",context)
+
+def deleteMessage(request,pk):
+    message_to_delete=Message.objects.get(id=pk)
+    # room=Room.objects.all()
+
+    if request.user != message_to_delete.user:
+        return HttpResponse("This is not your post- You cannot delete it!")
+    
+    if request.method == "POST":
+        message_to_delete.delete()
+        return redirect("home")
+    context={
+        "message_to_delete":message_to_delete
+    }
+    return render(request,"codebud/deleteroom.html",context)
+
+def editMessage(request,pk):
+    message_to_edit=Message.objects.get(id=pk)
+
+    form=MessageForm()
+    form=MessageForm(instance=message_to_edit)
+
+    if request.method =="POST":
+        form=MessageForm(request.POST,instance=message_to_edit)
+        if form.is_valid:
+            form.save()
+            return redirect("/")
+    context={
+        "form":form
+    }
+    return render(request,"codebud/editmsg.html",context)

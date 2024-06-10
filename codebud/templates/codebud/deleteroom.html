@@ -1,6 +1,8 @@
 {% extends 'base.html' %}
 
 {% block content %}
+
+{% if page == "delete-room" %}
 <form method="POST" action="">
     {% csrf_token %}
     <p>Are you sure you want to delete {{ object }} ?<br><br>
@@ -14,6 +16,24 @@
             </ul>
         <a href="{{ request.META.HTTP_REFERER|default:'/' }}">Cancel</a>
         <input type="submit" value="Confirm">
+ 
     </form>
+    
+{% else %}
+<form method="POST" action="">
+    {% csrf_token %}
+    <p>Are you sure you want to delete {{ message_to_delete }} ?<br><br>
+        <b>DETAILS</b>
+        <ul>
+            <li>Message body : {{ message_to_delete.body }}</li>
+            <li>Last Updated: {{ message_to_delete.updated }}</li>
+            <li>Date Created: {{ message_to_delete.created }}</li>
+            <li>Created by : {{ message_to_delete.user }}</li>
+            <li>Room found: {{ message_to_delete.room }}</li>
+            </ul>
+        <a href="{{ request.META.HTTP_REFERER|default:'/' }}">Cancel</a>
+        <input type="submit" value="Confirm">
+    </form>
+{% endif %}
 
     {% endblock %}
